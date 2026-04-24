@@ -1,0 +1,156 @@
+{
+  "name": "workspace-reviews",
+  "displayName": "Workspace Reviews",
+  "description": "Review the current working state versus a base branch across multi-root workspaces.",
+  "version": "0.0.13",
+  "publisher": "jake",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.105.0"
+  },
+  "categories": [
+    "Other",
+    "SCM"
+  ],
+  "activationEvents": [
+    "onView:workspaceReviews.sessions",
+    "onCommand:workspace-reviews.openChange",
+    "onCommand:workspace-reviews.refresh",
+    "onCommand:workspace-reviews.collapseAll",
+    "onCommand:workspace-reviews.openRepositoryTree",
+    "onCommand:workspace-reviews.sendPathToTerminal",
+    "onCommand:workspace-reviews.pickBaseBranch",
+    "onCommand:workspace-reviews.clearBaseBranchOverride"
+  ],
+  "main": "./dist/src/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "workspaceReviews",
+          "title": "Workspace Reviews",
+          "icon": "resources/workspace-reviews.svg"
+        }
+      ]
+    },
+    "views": {
+      "workspaceReviews": [
+        {
+          "id": "workspaceReviews.sessions",
+          "name": "Repositories"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "workspace-reviews.openChange",
+        "title": "Workspace Reviews: Open Change"
+      },
+      {
+        "command": "workspace-reviews.refresh",
+        "title": "Workspace Reviews: Refresh Sessions",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "workspace-reviews.collapseAll",
+        "title": "Workspace Reviews: Collapse All",
+        "icon": "$(collapse-all)"
+      },
+      {
+        "command": "workspace-reviews.openRepositoryTree",
+        "title": "Workspace Reviews: Open Repository Tree"
+      },
+      {
+        "command": "workspace-reviews.sendPathToTerminal",
+        "title": "Workspace Reviews: Send Path to Terminal"
+      },
+      {
+        "command": "workspace-reviews.pickBaseBranch",
+        "title": "Workspace Reviews: Pick Base Branch"
+      },
+      {
+        "command": "workspace-reviews.clearBaseBranchOverride",
+        "title": "Workspace Reviews: Clear Base Branch Override"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "workspace-reviews.sendPathToTerminal",
+        "key": "ctrl+l",
+        "mac": "cmd+l",
+        "when": "listFocus && focusedView == 'workspaceReviews.sessions'"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "workspace-reviews.refresh",
+          "when": "view == workspaceReviews.sessions",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "workspace-reviews.openRepositoryTree",
+          "when": "view == workspaceReviews.sessions && viewItem == repositorySession",
+          "group": "navigation"
+        },
+        {
+          "command": "workspace-reviews.sendPathToTerminal",
+          "when": "view == workspaceReviews.sessions && viewItem == repositorySession",
+          "group": "navigation"
+        },
+        {
+          "command": "workspace-reviews.sendPathToTerminal",
+          "when": "view == workspaceReviews.sessions && viewItem == directory",
+          "group": "navigation"
+        },
+        {
+          "command": "workspace-reviews.sendPathToTerminal",
+          "when": "view == workspaceReviews.sessions && viewItem == file",
+          "group": "navigation"
+        },
+        {
+          "command": "workspace-reviews.pickBaseBranch",
+          "when": "view == workspaceReviews.sessions && viewItem == repositorySession",
+          "group": "navigation"
+        },
+        {
+          "command": "workspace-reviews.clearBaseBranchOverride",
+          "when": "view == workspaceReviews.sessions && viewItem == repositorySession",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Workspace Reviews",
+      "properties": {
+        "workspaceReviews.defaultBaseBranches": {
+          "type": "array",
+          "default": [
+            "main",
+            "master",
+            "develop"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "Ordered branch names used when auto-detecting the base ref for a review session."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -w -p .",
+    "test": "npm run compile && tsx --test test/**/*.test.ts",
+    "package": "node ./scripts/package-vsix.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "@types/vscode": "^1.105.0",
+    "@vscode/vsce": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3"
+  }
+}
