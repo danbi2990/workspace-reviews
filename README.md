@@ -131,6 +131,14 @@ Install the packaged extension locally:
 code --install-extension dist/workspace-reviews-*.vsix --force
 ```
 
+Or download a VSIX from the
+[GitHub Releases](https://github.com/danbi2990/workspace-reviews/releases)
+page and install it with:
+
+```bash
+code --install-extension workspace-reviews-*.vsix
+```
+
 ## Current Limitations
 
 - Keybinding-driven actions in the custom tree are selection-based.

@@ -2,9 +2,10 @@
   "name": "workspace-reviews",
   "displayName": "Workspace Reviews",
   "description": "Review the current working state versus a base branch across multi-root workspaces.",
-  "version": "0.0.13",
-  "publisher": "jake",
+  "version": "0.0.14",
+  "publisher": "danbi2990",
   "license": "MIT",
+  "icon": "resources/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/danbi2990/workspace-reviews.git"
@@ -18,7 +19,7 @@
   },
   "categories": [
     "Other",
-    "SCM"
+    "SCM Providers"
   ],
   "activationEvents": [
     "onView:workspaceReviews.sessions",
