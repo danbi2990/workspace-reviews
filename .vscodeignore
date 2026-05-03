@@ -1,6 +1,7 @@
 src/**
 test/**
 docs/**
+scripts/**
 dist/test/**
 tsconfig.json
 .gitignore

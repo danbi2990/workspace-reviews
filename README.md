@@ -16,10 +16,6 @@ Workspace Reviews exists for that gap: reviewing changes across multiple
 workspace folders with a PR-like, base-aware diff flow, without depending on the
 full pull request extension workflow.
 
-Workspace Reviews is a VS Code extension for reviewing the current working
-state of each Git repository in a multi-root workspace against a chosen base
-branch.
-
 ## Features
 
 The extension adds its own Activity Bar view with a `Repositories` tree. It is

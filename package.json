@@ -5,6 +5,14 @@
   "version": "0.0.13",
   "publisher": "jake",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danbi2990/workspace-reviews.git"
+  },
+  "bugs": {
+    "url": "https://github.com/danbi2990/workspace-reviews/issues"
+  },
+  "homepage": "https://github.com/danbi2990/workspace-reviews#readme",
   "engines": {
     "vscode": "^1.105.0"
   },
