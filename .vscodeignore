@@ -2,6 +2,7 @@ src/**
 test/**
 docs/**
 scripts/**
+.github/**
 dist/test/**
 tsconfig.json
 .gitignore
