@@ -6,5 +6,6 @@ scripts/**
 dist/test/**
 tsconfig.json
 .gitignore
+pnpm-lock.yaml
 node_modules/**
 *.ts

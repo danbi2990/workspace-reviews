@@ -26,8 +26,8 @@ function packageVsix() {
 
   return new Promise((resolve, reject) => {
     const child = spawn(
-      process.platform === "win32" ? "npx.cmd" : "npx",
-      ["vsce", "package", "--out", outputPath],
+      process.platform === "win32" ? "vsce.cmd" : "vsce",
+      ["package", "--out", outputPath],
       {
         cwd: repositoryRoot,
         stdio: "inherit",

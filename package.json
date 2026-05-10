@@ -5,6 +5,7 @@
   "version": "0.0.14",
   "publisher": "danbi2990",
   "license": "MIT",
+  "packageManager": "pnpm@10.33.2",
   "icon": "resources/icon.png",
   "repository": {
     "type": "git",
@@ -152,7 +153,7 @@
   "scripts": {
     "compile": "tsc -p .",
     "watch": "tsc -w -p .",
-    "test": "npm run compile && tsx --test test/**/*.test.ts",
+    "test": "tsc -p . && tsx --test test/**/*.test.ts",
     "package": "node ./scripts/package-vsix.mjs"
   },
   "devDependencies": {
