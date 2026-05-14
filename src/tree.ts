@@ -15,6 +15,7 @@ import {
 } from "./fileDecorationData";
 import { collectReviewSessions, getGitApi } from "./git";
 import { ChangeEntry, ReviewSession } from "./model";
+import { groupSessionsByWorkspaceFolder } from "./repositoryGrouping";
 import {
   repositoryNodeDescription,
   repositoryNodeTooltip,
@@ -73,6 +74,12 @@ export class WorkspaceReviewsProvider
   }
 
   async getChildren(element?: TreeNode): Promise<TreeNode[]> {
+    if (element instanceof WorkspaceFolderNode) {
+      return element.session
+        ? this.getSessionChildren(element.session, element)
+        : [...element.children];
+    }
+
     if (element instanceof RepositoryNode) {
       return this.getRepositoryChildren(element);
     }
@@ -91,7 +98,7 @@ export class WorkspaceReviewsProvider
       ];
     }
 
-    return this.toRepositoryNodes(sessions);
+    return this.toWorkspaceFolderNodes(sessions);
   }
 
   async refresh(): Promise<void> {
@@ -100,7 +107,16 @@ export class WorkspaceReviewsProvider
   }
 
   async getRepositoryItems(): Promise<WorkspaceReviewsRepositoryTreeNode[]> {
-    return this.toRepositoryNodes(await this.getSessions());
+    const repositoryItems: WorkspaceReviewsRepositoryTreeNode[] = [];
+    for (const node of this.toWorkspaceFolderNodes(await this.getSessions())) {
+      if (node.session) {
+        repositoryItems.push(node);
+      } else {
+        repositoryItems.push(...node.children);
+      }
+    }
+
+    return repositoryItems;
   }
 
   getSessionForTreeItem(item?: unknown): ReviewSession | undefined {
@@ -120,6 +136,10 @@ export class WorkspaceReviewsProvider
     let current = item;
 
     while (current) {
+      if (current instanceof WorkspaceFolderNode && current.session) {
+        return current;
+      }
+
       if (current instanceof RepositoryNode) {
         return current;
       }
@@ -201,21 +221,36 @@ export class WorkspaceReviewsProvider
     return sessions;
   }
 
-  private toRepositoryNodes(
+  private toWorkspaceFolderNodes(
     sessions: readonly ReviewSession[],
-  ): WorkspaceReviewsRepositoryTreeNode[] {
-    return sessions.map((session) => {
-      const visibleChanges = getVisibleChanges(session);
-      return new RepositoryNode(session, visibleChanges);
+  ): WorkspaceFolderNode[] {
+    return groupSessionsByWorkspaceFolder(sessions).map((group) => {
+      const workspaceFolderNode = new WorkspaceFolderNode(
+        group.sessions,
+        group.directRepositorySession,
+        [],
+      );
+      workspaceFolderNode.children = group.sessions.map((session) => {
+        const visibleChanges = getVisibleChanges(session);
+        return new RepositoryNode(workspaceFolderNode, session, visibleChanges);
+      });
+      return workspaceFolderNode;
     });
   }
 
   private getRepositoryChildren(repositoryNode: RepositoryNode): TreeNode[] {
-    const visibleChanges = getVisibleChanges(repositoryNode.session);
+    return this.getSessionChildren(repositoryNode.session, repositoryNode);
+  }
+
+  private getSessionChildren(
+    session: ReviewSession,
+    parent: TreeNode,
+  ): TreeNode[] {
+    const visibleChanges = getVisibleChanges(session);
     return [
       ...(visibleChanges.length > 0
         ? buildChangeTree(visibleChanges).map((node) =>
-            toTreeNode(repositoryNode.session, node, repositoryNode),
+            toTreeNode(session, node, parent),
           )
         : [new InfoNode("No changed files")]),
     ];
@@ -237,19 +272,66 @@ export class WorkspaceReviewsProvider
 }
 
 export type WorkspaceReviewsTreeNode =
+  | WorkspaceFolderNode
   | RepositoryNode
   | DirectoryNode
   | ChangeLeafNode
   | InfoNode;
-export type WorkspaceReviewsRepositoryTreeNode = RepositoryNode;
+export type WorkspaceReviewsRepositoryTreeNode =
+  | WorkspaceFolderNode
+  | RepositoryNode;
 type TreeNode = WorkspaceReviewsTreeNode;
+
+class WorkspaceFolderNode extends vscode.TreeItem {
+  readonly absolutePath: string;
+  readonly contextValue: string;
+  readonly parent = undefined;
+  children: readonly RepositoryNode[];
+
+  constructor(
+    readonly sessions: readonly ReviewSession[],
+    readonly session: ReviewSession | undefined,
+    children: readonly RepositoryNode[],
+  ) {
+    const workspaceFolder = sessions[0]?.workspaceFolder;
+    const visibleChanges = session ? getVisibleChanges(session) : [];
+    super(
+      workspaceFolder?.name ?? "Workspace Folder",
+      vscode.TreeItemCollapsibleState.Collapsed,
+    );
+    this.contextValue = session ? "repositorySession" : "workspaceFolder";
+    this.children = children;
+    this.absolutePath = workspaceFolder?.uri.fsPath ?? "";
+    this.id = `workspace:${this.absolutePath}`;
+    this.description = session
+      ? repositoryNodeDescription(visibleChanges.length)
+      : "";
+    this.tooltip = session ? repositoryNodeTooltip(session) : this.absolutePath;
+
+    const aggregatedStatus = aggregateDecorationStatus(
+      (session ? visibleChanges : sessions.flatMap(getVisibleChanges)).map(
+        (change) => change.status,
+      ),
+    );
+    if (workspaceFolder) {
+      this.resourceUri = workspaceFolder.uri.with({
+        query: aggregatedStatus
+          ? encodeDecorationMetadata({
+              kind: "container",
+              status: aggregatedStatus,
+            })
+          : undefined,
+      });
+    }
+  }
+}
 
 class RepositoryNode extends vscode.TreeItem {
   readonly absolutePath: string;
   readonly contextValue = "repositorySession";
-  readonly parent = undefined;
 
   constructor(
+    readonly parent: WorkspaceFolderNode,
     readonly session: ReviewSession,
     visibleChanges: readonly ChangeEntry[],
   ) {

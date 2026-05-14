@@ -1,4 +1,3 @@
-import * as path from "node:path";
 import * as vscode from "vscode";
 import {
   createBaseDetectionOptions,
@@ -10,6 +9,7 @@ import {
   getCommittedChanges,
 } from "./gitDiff";
 import { ChangeEntry, ReviewSession } from "./model";
+import { formatRepositoryLabel } from "./repositoryLabel";
 import { Repository } from "./types";
 
 export async function createReviewSession(params: {
@@ -53,7 +53,7 @@ export async function createReviewSession(params: {
     id: repository.rootUri.toString(),
     workspaceFolder,
     repository,
-    repositoryLabel: path.basename(repository.rootUri.fsPath),
+    repositoryLabel: formatRepositoryLabel(workspaceFolder, repository),
     currentBranch,
     baseRef,
     comparisonBaseRef,

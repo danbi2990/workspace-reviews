@@ -196,7 +196,7 @@ async function pickRepositoryItem(
   }
 
   const picks = repositoryItems.map((item) => ({
-    label: item.session.repositoryLabel,
+    label: treeItemLabel(item.label),
     item,
   }));
   const picked = await vscode.window.showQuickPick(
@@ -207,4 +207,12 @@ async function pickRepositoryItem(
   );
 
   return picked?.item;
+}
+
+function treeItemLabel(label: vscode.TreeItem["label"]): string {
+  if (typeof label === "string") {
+    return label;
+  }
+
+  return label?.label ?? "Repository";
 }
