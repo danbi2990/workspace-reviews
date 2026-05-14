@@ -2,7 +2,7 @@
 
 All notable changes to Workspace Reviews will be documented in this file.
 
-## Unreleased
+## 0.0.15
 
 ### Changed
 

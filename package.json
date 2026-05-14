@@ -2,7 +2,7 @@
   "name": "workspace-reviews",
   "displayName": "Workspace Reviews",
   "description": "Review the current working state versus a base branch across multi-root workspaces.",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "publisher": "danbi2990",
   "license": "MIT",
   "packageManager": "pnpm@10.33.2",
